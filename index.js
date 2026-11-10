@@ -1,4 +1,6 @@
 
+'use strict';
+
 const {
   Client,
   GatewayIntentBits,
@@ -7,12 +9,11 @@ const {
   SlashCommandBuilder,
   ChannelType,
   EmbedBuilder
-} = require("discord.js");
+} = require('discord.js');
 
-const express = require("express");
-
+const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT || 3000);
 
 const client = new Client({
   intents: [
@@ -21,666 +22,703 @@ const client = new Client({
   ]
 });
 
-app.get("/", (req, res) => {
-  res.json({
-    projeto: "DENDÊ | PROJETO CPX",
-    discord: client.isReady() ? "online" : "offline"
-  });
+app.get('/', (_req, res) => res.json({
+  projeto: 'DENDÊ | PROJETO CPX',
+  discord: client.isReady() ? 'online' : 'offline',
+  bot: client.user?.tag || null
+}));
+
+app.get('/health', (_req, res) =>
+  res.status(client.isReady() ? 200 : 503).json({
+    discord: client.isReady() ? 'online' : 'offline'
+  })
+);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('[HTTP] Porta', PORT);
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("HTTP funcionando na porta", PORT);
-});
-
-const cargos = [
-  ["👑 Dono", 0xffd700],
-  ["🔥 Líder", 0xff3333],
-  ["💎 Sub-Líder", 0xaa55ff],
-  ["🛡️ Gerente", 0x3399ff],
-  ["📋 Recrutador", 0x00aaaa],
-  ["💎 Elite Dendê", 0x00cc66],
-  ["🌿 Membro", 0x33aa33],
-  ["🟢 Recruta", 0xaaaaaa]
+const roles = [
+  ['👑 Dono', 0xffd700],
+  ['🔥 Líder', 0xff3333],
+  ['💎 Sub-Líder', 0xaa55ff],
+  ['🛡️ Gerente', 0x3399ff],
+  ['📋 Recrutador', 0x00aaaa],
+  ['💎 Elite Dendê', 0x00cc66],
+  ['🌿 Membro', 0x33aa33],
+  ['🟢 Recruta', 0xaaaaaa]
 ];
 
-const lideranca = [
-  "👑 Dono",
-  "🔥 Líder",
-  "💎 Sub-Líder",
-  "🛡️ Gerente",
-  "📋 Recrutador"
+const leadership = [
+  '👑 Dono',
+  '🔥 Líder',
+  '💎 Sub-Líder',
+  '🛡️ Gerente',
+  '📋 Recrutador'
 ];
 
-const administracao = lideranca.slice(0, 4);
+const adminRoles = leadership.slice(0, 4);
 
-const estrutura = [
+const sections = [
   {
-    nome: "📢 INFORMAÇÕES",
-    canais: [
-      "📜・regras",
-      "📢・avisos",
-      "👋・boas-vindas",
-      "📋・hierarquia",
-      "📅・reuniões"
+    name: '📢 INFORMAÇÕES',
+    channels: [
+      '📜・regras',
+      '📢・avisos',
+      '👋・boas-vindas',
+      '📋・hierarquia',
+      '📅・reuniões'
     ]
   },
   {
-    nome: "🌿 ÁREA DA FACÇÃO",
-    canais: [
-      "💬・chat-geral",
-      "📸・prints",
-      "🎮・clipes",
-      "📍・localizações",
-      "🔊・resenha",
-      "🎙️・rádio-01",
-      "🎙️・rádio-02"
+    name: '🌿 ÁREA DA FACÇÃO',
+    channels: [
+      '💬・chat-geral',
+      '📸・prints',
+      '🎮・clipes',
+      '📍・localizações',
+      '🔊・resenha',
+      '🎙️・rádio-01',
+      '🎙️・rádio-02'
     ]
   },
   {
-    nome: "👥 RECRUTAMENTO",
-    canais: [
-      "📝・recrutamento",
-      "🎫・abrir-ticket",
-      "✅・aprovados",
-      "❌・reprovados"
+    name: '👥 RECRUTAMENTO',
+    channels: [
+      '📝・recrutamento',
+      '🎫・abrir-ticket',
+      '✅・aprovados',
+      '❌・reprovados'
     ]
   },
   {
-    nome: "👑 LIDERANÇA",
-    privado: lideranca,
-    canais: [
-      "👑・chat-liderança",
-      "📊・relatórios",
-      "📋・controle-membros",
-      "🔊・reunião-liderança"
+    name: '👑 LIDERANÇA',
+    private: leadership,
+    channels: [
+      '👑・chat-liderança',
+      '📊・relatórios',
+      '📋・controle-membros',
+      '🔊・reunião-liderança'
     ]
   },
   {
-    nome: "🛡️ ADMINISTRAÇÃO",
-    privado: administracao,
-    canais: [
-      "🤖・comandos-bot",
-      "📁・logs-gerais",
-      "📈・logs-cargos",
-      "🚪・entradas-saídas",
-      "⚠️・advertências"
+    name: '🛡️ ADMINISTRAÇÃO',
+    private: adminRoles,
+    channels: [
+      '🤖・comandos-bot',
+      '📁・logs-gerais',
+      '📈・logs-cargos',
+      '🚪・entradas-saídas',
+      '⚠️・advertências'
     ]
   },
   {
-    nome: "📦 CONTROLE DE BAÚ",
-    privado: lideranca,
-    canais: [
-      "📦・controle-bau",
-      "📥・depositos-bau",
-      "📤・retiradas-bau",
-      "📊・estoque-bau"
+    name: '📦 CONTROLE DE BAÚ',
+    private: leadership,
+    channels: [
+      '📦・controle-bau',
+      '📥・depositos-bau',
+      '📤・retiradas-bau',
+      '📊・estoque-bau'
     ]
   },
   {
-    nome: "💎 ELITE DENDÊ",
-    privado: [...lideranca, "💎 Elite Dendê"],
-    canais: [
-      "💎・chat-elite",
-      "📢・avisos-elite",
-      "🔊・call-elite"
+    name: '💎 ELITE DENDÊ',
+    private: [...leadership, '💎 Elite Dendê'],
+    channels: [
+      '💎・chat-elite',
+      '📢・avisos-elite',
+      '🔊・call-elite'
     ]
   }
 ];
 
-const canaisVoz = new Set([
-  "🔊・resenha",
-  "🎙️・rádio-01",
-  "🎙️・rádio-02",
-  "🔊・reunião-liderança",
-  "🔊・call-elite"
+const voiceNames = new Set([
+  '🔊・resenha',
+  '🎙️・rádio-01',
+  '🎙️・rádio-02',
+  '🔊・reunião-liderança',
+  '🔊・call-elite'
 ]);
 
-function erroLog(etapa, erro, avisos) {
-  const texto = `${etapa}: ${erro.message}`;
-  console.error("[DENDÊ ERRO]", texto);
-  avisos.push(texto);
-}
-
-function regrasPrivadas(guild, nomes, botId) {
-  const regras = [
+function overwrites(guild, allowed, botId) {
+  const entries = [
     {
-      id: guild.roles.everyone.id,
+      id: guild.id,
       deny: [P.ViewChannel]
     },
     {
       id: botId,
       allow: [
         P.ViewChannel,
-        P.ManageChannels,
         P.SendMessages,
-        P.ReadMessageHistory
+        P.ReadMessageHistory,
+        P.ManageChannels
       ]
     }
   ];
 
-  for (const nome of nomes) {
-    const cargo = guild.roles.cache.find(
-      r => r.name === nome
+  for (const name of allowed) {
+    const role = guild.roles.cache.find(
+      r => r.name === name
     );
 
-    if (cargo) {
-      regras.push({
-        id: cargo.id,
-        allow: [P.ViewChannel]
-      });
+    if (!role) {
+      throw new Error(
+        `Cargo obrigatório ausente: ${name}`
+      );
     }
+
+    entries.push({
+      id: role.id,
+      allow: [P.ViewChannel]
+    });
   }
 
-  return regras;
+  return entries;
 }
 
-function canalSeguro(canal, guild, nomes) {
-  const todos = canal.permissionOverwrites.cache.get(
-    guild.roles.everyone.id
-  );
+function hasPrivacy(channel, guild, allowed) {
+  const everyone =
+    channel.permissionOverwrites.cache.get(guild.id);
 
-  if (!todos || !todos.deny.has(P.ViewChannel)) {
+  if (!everyone?.deny.has(P.ViewChannel)) {
     return false;
   }
 
-  for (const nome of nomes) {
-    const cargo = guild.roles.cache.find(
-      r => r.name === nome
+  return allowed.every(name => {
+    const role = guild.roles.cache.find(
+      r => r.name === name
     );
 
-    if (!cargo) return false;
-
-    const regra = canal.permissionOverwrites.cache.get(
-      cargo.id
-    );
-
-    if (!regra || !regra.allow.has(P.ViewChannel)) {
-      return false;
-    }
-  }
-
-  return true;
+    return role &&
+      channel.permissionOverwrites.cache
+        .get(role.id)?.allow.has(P.ViewChannel);
+  });
 }
 
-async function instalar(guild) {
-  const avisos = [];
-  let criados = 0;
+async function install(guild) {
+  const warnings = [];
+  let created = 0;
 
   await guild.roles.fetch();
   await guild.channels.fetch();
 
-  const bot = await guild.members.fetchMe();
+  const me = await guild.members.fetchMe();
 
-  if (!bot.permissions.has(P.ManageRoles)) {
-    throw new Error("Falta Gerenciar Cargos");
+  if (!me.permissions.has(P.ManageRoles)) {
+    throw new Error(
+      'Bot sem permissão Gerenciar Cargos'
+    );
   }
 
-  if (!bot.permissions.has(P.ManageChannels)) {
-    throw new Error("Falta Gerenciar Canais");
+  if (!me.permissions.has(P.ManageChannels)) {
+    throw new Error(
+      'Bot sem permissão Gerenciar Canais'
+    );
   }
 
-  console.log(
-    "[DENDÊ] Cargo do bot:",
-    bot.roles.highest.name
-  );
+  for (const [name, color] of roles) {
+    if (guild.roles.cache.some(r => r.name === name)) {
+      continue;
+    }
 
-  for (const [nome, cor] of cargos) {
     try {
-      const existente = guild.roles.cache.find(
-        r => r.name === nome
+      await guild.roles.create({
+        name,
+        color,
+        reason: 'Instalação DENDÊ CPX'
+      });
+      created++;
+    } catch (err) {
+      warnings.push(
+        `Cargo ${name}: ${err.message}`
       );
-
-      if (!existente) {
-        await guild.roles.create({
-          name: nome,
-          color: cor,
-          reason: "Instalação DENDÊ"
-        });
-
-        criados++;
-      }
-    } catch (erro) {
-      erroLog("Criar cargo " + nome, erro, avisos);
     }
   }
 
   await guild.roles.fetch();
 
-  for (const grupo of estrutura) {
-    let categoria = guild.channels.cache.find(
-      c => c.name === grupo.nome &&
-      c.type === ChannelType.GuildCategory
+  for (const section of sections) {
+    let category = guild.channels.cache.find(
+      c => c.name === section.name &&
+        c.type === ChannelType.GuildCategory
     );
 
-    const regras = grupo.privado
-      ? regrasPrivadas(guild, grupo.privado, bot.id)
-      : null;
-
-    let segura = !grupo.privado;
+    let perms;
 
     try {
-      if (!categoria) {
-        categoria = await guild.channels.create({
-          name: grupo.nome,
-          type: ChannelType.GuildCategory,
-          ...(regras
-            ? { permissionOverwrites: regras }
-            : {})
-        });
-
-        criados++;
-      } else if (regras) {
-        await categoria.permissionOverwrites.set(
-          regras,
-          "Proteção de categoria DENDÊ"
-        );
-      }
-
-      if (regras) {
-        await categoria.fetch();
-
-        segura = canalSeguro(
-          categoria,
+      if (section.private) {
+        perms = overwrites(
           guild,
-          grupo.privado
+          section.private,
+          me.id
         );
       }
-    } catch (erro) {
-      erroLog(
-        "Categoria " + grupo.nome,
-        erro,
-        avisos
+    } catch (err) {
+      warnings.push(
+        `${section.name}: ${err.message}`
       );
-    }
-
-    if (!categoria) continue;
-
-    if (grupo.privado && !segura) {
-      avisos.push(
-        "Categoria privada não confirmada: " +
-        grupo.nome
-      );
-
-      console.warn(
-        "[DENDÊ] Pulando canais privados:",
-        grupo.nome
-      );
-
       continue;
     }
 
-    for (const nome of grupo.canais) {
+    try {
+      if (!category) {
+        category = await guild.channels.create({
+          name: section.name,
+          type: ChannelType.GuildCategory,
+          ...(perms
+            ? { permissionOverwrites: perms }
+            : {})
+        });
+
+        created++;
+      } else if (perms) {
+        await category.permissionOverwrites.set(
+          perms,
+          'Privacidade DENDÊ'
+        );
+      }
+
+      if (perms) {
+        await category.fetch();
+
+        if (!hasPrivacy(
+          category,
+          guild,
+          section.private
+        )) {
+          warnings.push(
+            `Privacidade não confirmada em ${section.name}`
+          );
+          continue;
+        }
+      }
+    } catch (err) {
+      warnings.push(
+        `Categoria ${section.name}: ${err.message}`
+      );
+      continue;
+    }
+
+    for (const name of section.channels) {
       try {
-        let canal = guild.channels.cache.find(
-          c => c.name === nome &&
-          c.parentId === categoria.id
+        let channel = guild.channels.cache.find(
+          c => c.name === name &&
+            c.parentId === category.id
         );
 
-        if (!canal) {
-          canal = await guild.channels.create({
-            name: nome,
-            type: canaisVoz.has(nome)
+        if (!channel) {
+          channel = await guild.channels.create({
+            name,
+            type: voiceNames.has(name)
               ? ChannelType.GuildVoice
               : ChannelType.GuildText,
-            parent: categoria.id,
-            ...(regras
-              ? { permissionOverwrites: regras }
+            parent: category.id,
+            ...(perms
+              ? { permissionOverwrites: perms }
               : {})
           });
 
-          criados++;
-        } else if (regras) {
-          try {
-            await canal.lockPermissions();
-          } catch (erro) {
-            erroLog(
-              "Sincronizar " + nome,
-              erro,
-              avisos
-            );
-          }
+          created++;
+        } else if (perms) {
+          await channel.permissionOverwrites.set(
+            perms,
+            'Privacidade DENDÊ'
+          );
         }
 
-        if (regras) {
-          await canal.fetch();
+        if (perms) {
+          await channel.fetch();
 
-          if (!canalSeguro(
-            canal,
+          if (!hasPrivacy(
+            channel,
             guild,
-            grupo.privado
+            section.private
           )) {
-            avisos.push(
-              "Revisar privacidade: " + nome
+            warnings.push(
+              `Revisar privacidade: ${name}`
             );
           }
         }
-      } catch (erro) {
-        erroLog(
-          "Canal " + nome,
-          erro,
-          avisos
+      } catch (err) {
+        warnings.push(
+          `Canal ${name}: ${err.message}`
         );
       }
     }
   }
 
-  return { criados, avisos };
+  return { created, warnings };
 }
 
-const comandos = [
+const commands = [
   new SlashCommandBuilder()
-    .setName("instalardende")
-    .setDescription("Instala o servidor Dendê")
+    .setName('instalardende')
+    .setDescription('Instala cargos e canais DENDÊ')
     .setDefaultMemberPermissions(P.ManageGuild),
 
   new SlashCommandBuilder()
-    .setName("statusdende")
-    .setDescription("Verifica o DENDÊ BOT"),
+    .setName('statusdende')
+    .setDescription('Confere se o bot está online'),
 
   new SlashCommandBuilder()
-    .setName("registrarsaida")
-    .setDescription("Registra saída de integrante")
+    .setName('registrarsaida')
+    .setDescription('Registra saída de membro')
     .setDefaultMemberPermissions(P.ManageRoles)
     .addUserOption(o =>
-      o.setName("membro")
-        .setDescription("Integrante")
+      o.setName('membro')
+        .setDescription('Integrante')
         .setRequired(true)
     )
     .addStringOption(o =>
-      o.setName("motivo")
-        .setDescription("Motivo")
+      o.setName('motivo')
+        .setDescription('Motivo')
         .setRequired(true)
     ),
 
   new SlashCommandBuilder()
-    .setName("registrarretirada")
-    .setDescription("Registra retirada do baú")
+    .setName('registrarretirada')
+    .setDescription('Registra retirada manual do baú')
     .setDefaultMemberPermissions(P.ManageRoles)
     .addStringOption(o =>
-      o.setName("item")
-        .setDescription("Item")
+      o.setName('item')
+        .setDescription('Item')
         .setRequired(true)
     )
     .addIntegerOption(o =>
-      o.setName("quantidade")
-        .setDescription("Quantidade")
+      o.setName('quantidade')
+        .setDescription('Quantidade')
         .setMinValue(1)
         .setRequired(true)
     )
     .addUserOption(o =>
-      o.setName("membro")
-        .setDescription("Quem retirou")
+      o.setName('membro')
+        .setDescription('Quem retirou')
         .setRequired(true)
     )
 ];
 
-client.once("clientReady", async () => {
-  console.log(
-    "DENDÊ BOT ONLINE:",
-    client.user.tag
-  );
+client.once('clientReady', async () => {
+  console.log('[DISCORD ONLINE]', client.user.tag);
 
   try {
     await client.application.commands.set(
-      comandos.map(c => c.toJSON())
+      commands.map(c => c.toJSON())
     );
 
-    console.log("Comandos registrados.");
-  } catch (erro) {
-    console.error("Erro nos comandos:", erro);
+    console.log('[COMANDOS] Registrados');
+  } catch (err) {
+    console.error(
+      '[ERRO COMANDOS]',
+      err.message
+    );
   }
 });
 
-client.on("guildMemberAdd", async member => {
-  try {
-    const canal = member.guild.channels.cache.find(
-      c => c.name === "👋・boas-vindas"
+client.on('guildMemberAdd', async member => {
+  const channel = member.guild.channels.cache.find(
+    c => c.name === '👋・boas-vindas' &&
+      c.isTextBased()
+  );
+
+  if (!channel) return;
+
+  await channel.send({
+    embeds: [
+      new EmbedBuilder()
+        .setColor(0x00cc66)
+        .setTitle('🌿 BEM-VINDO AO DENDÊ!')
+        .setDescription(
+          `${member}, bem-vindo ao **DENDÊ | PROJETO CPX**!`
+        )
+        .setTimestamp()
+    ]
+  }).catch(err => {
+    console.error(
+      '[BOAS-VINDAS]',
+      err.message
     );
-
-    if (!canal || !canal.isTextBased()) return;
-
-    const embed = new EmbedBuilder()
-      .setColor(0x00cc66)
-      .setTitle("🌿 BEM-VINDO AO DENDÊ!")
-      .setDescription(
-        `${member}, bem-vindo ao ` +
-        "**DENDÊ | PROJETO CPX**!"
-      )
-      .setTimestamp();
-
-    await canal.send({ embeds: [embed] });
-  } catch (erro) {
-    console.error("Erro boas-vindas:", erro);
-  }
+  });
 });
 
-client.on("guildMemberRemove", async member => {
-  try {
-    const canal = member.guild.channels.cache.find(
-      c => c.name === "🚪・entradas-saídas"
-    );
+client.on('guildMemberRemove', async member => {
+  const channel = member.guild.channels.cache.find(
+    c => c.name === '🚪・entradas-saídas' &&
+      c.isTextBased()
+  );
 
-    if (!canal || !canal.isTextBased()) return;
-
-    await canal.send(
-      `🚪 **SAÍDA DO SERVIDOR**\n` +
+  if (channel) {
+    await channel.send(
+      `🚪 **SAÍDA**\n` +
       `Membro: ${member.user.tag}\n` +
       `ID: ${member.id}`
-    );
-  } catch (erro) {
-    console.error("Erro saída:", erro);
+    ).catch(err => {
+      console.error(
+        '[SAÍDA]',
+        err.message
+      );
+    });
   }
 });
 
-client.on("interactionCreate", async interaction => {
+client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
   if (!interaction.inGuild()) return;
 
   try {
-    if (interaction.commandName === "statusdende") {
+    if (interaction.commandName === 'statusdende') {
       return interaction.reply({
-        content: "🌿 DENDÊ BOT ONLINE!",
+        content: '🌿 DENDÊ BOT ONLINE!',
         flags: MessageFlags.Ephemeral
       });
     }
 
-    if (interaction.commandName === "instalardende") {
-      if (!interaction.memberPermissions.has(
+    if (interaction.commandName === 'instalardende') {
+      if (!interaction.memberPermissions?.has(
         P.ManageGuild
       )) {
-        return interaction.reply({
-          content: "❌ Sem permissão.",
-          flags: MessageFlags.Ephemeral
-        });
+        throw new Error(
+          'Você precisa da permissão Gerenciar Servidor'
+        );
       }
 
       await interaction.deferReply({
         flags: MessageFlags.Ephemeral
       });
 
-      const resultado = await instalar(
+      const result = await install(
         interaction.guild
       );
 
-      const resumo =
-        `🌿 **DENDÊ | PROJETO CPX**\n` +
-        `✅ Criados: ${resultado.criados}\n` +
-        `⚠️ Avisos: ${resultado.avisos.length}\n\n` +
-        (resultado.avisos.length
-          ? resultado.avisos.slice(0, 6)
-              .map(a => `• ${a}`).join("\n")
-          : "Instalação sem erros detectados.");
+      const output =
+        `🌿 **Instalação DENDÊ**\n` +
+        `Criados: ${result.created}\n` +
+        `Avisos: ${result.warnings.length}\n` +
+        (result.warnings.slice(0, 12)
+          .map(w => `• ${w}`)
+          .join('\n') || 'Sem avisos.');
 
       return interaction.editReply(
-        resumo.slice(0, 1900)
+        output.slice(0, 1900)
       );
     }
 
-    if (interaction.commandName === "registrarsaida") {
-      if (!interaction.memberPermissions.has(
-        P.ManageRoles
-      )) {
-        return interaction.reply({
-          content: "❌ Sem permissão.",
-          flags: MessageFlags.Ephemeral
-        });
-      }
+    if (!interaction.memberPermissions?.has(
+      P.ManageRoles
+    )) {
+      throw new Error(
+        'Você precisa da permissão Gerenciar Cargos'
+      );
+    }
 
-      const membro = interaction.options.getUser(
-        "membro"
+    if (interaction.commandName === 'registrarsaida') {
+      const user = interaction.options.getUser(
+        'membro',
+        true
       );
 
-      const motivo = interaction.options.getString(
-        "motivo"
+      const reason = interaction.options.getString(
+        'motivo',
+        true
       );
 
-      const canal = interaction.guild.channels.cache.find(
-        c => c.name === "🚪・entradas-saídas"
-      );
+      const channel =
+        interaction.guild.channels.cache.find(
+          c => c.name === '🚪・entradas-saídas' &&
+            c.isTextBased()
+        );
 
-      if (!canal || !canal.isTextBased()) {
+      if (!channel) {
         throw new Error(
-          "Canal de saídas não encontrado"
+          'Canal de saídas não encontrado'
         );
       }
 
-      await canal.send({
+      await channel.send({
         content:
           `🚪 **SAÍDA REGISTRADA**\n` +
-          `Membro: ${membro}\n` +
-          `Motivo: ${motivo}\n` +
-          `Responsável: ${interaction.user}`,
+          `Membro: ${user.username} (${user.id})\n` +
+          `Motivo: ${reason}\n` +
+          `Responsável: ${interaction.user.username}`,
         allowedMentions: { parse: [] }
       });
 
       return interaction.reply({
-        content: "✅ Saída registrada.",
+        content: '✅ Saída registrada.',
         flags: MessageFlags.Ephemeral
       });
     }
 
-    if (
-      interaction.commandName === "registrarretirada"
-    ) {
-      if (!interaction.memberPermissions.has(
-        P.ManageRoles
-      )) {
-        return interaction.reply({
-          content: "❌ Sem permissão.",
-          flags: MessageFlags.Ephemeral
-        });
-      }
-
+    if (interaction.commandName === 'registrarretirada') {
       const item = interaction.options.getString(
-        "item"
+        'item',
+        true
       );
 
-      const quantidade =
-        interaction.options.getInteger("quantidade");
-
-      const membro = interaction.options.getUser(
-        "membro"
+      const qty = interaction.options.getInteger(
+        'quantidade',
+        true
       );
 
-      const canal = interaction.guild.channels.cache.find(
-        c => c.name === "📤・retiradas-bau"
+      const user = interaction.options.getUser(
+        'membro',
+        true
       );
 
-      if (!canal || !canal.isTextBased()) {
+      const channel =
+        interaction.guild.channels.cache.find(
+          c => c.name === '📤・retiradas-bau' &&
+            c.isTextBased()
+        );
+
+      if (!channel) {
         throw new Error(
-          "Canal de retiradas não encontrado"
+          'Canal de retiradas não encontrado'
         );
       }
 
-      await canal.send({
+      await channel.send({
         content:
           `📤 **RETIRADA DO BAÚ**\n` +
           `Item: ${item}\n` +
-          `Quantidade: ${quantidade}\n` +
-          `Membro: ${membro}\n` +
-          `Registrado por: ${interaction.user}`,
+          `Quantidade: ${qty}\n` +
+          `Membro: ${user.username} (${user.id})\n` +
+          `Responsável: ${interaction.user.username}`,
         allowedMentions: { parse: [] }
       });
 
       return interaction.reply({
-        content: "✅ Retirada registrada.",
+        content: '✅ Retirada registrada.',
         flags: MessageFlags.Ephemeral
       });
     }
-  } catch (erro) {
-    console.error(
-      "[DENDÊ] Erro no comando:",
-      erro
-    );
+  } catch (err) {
+    console.error('[ERRO COMANDO]', err);
 
-    const mensagem =
-      "❌ Erro. Confira os logs do Render.";
+    const msg = `❌ ${err.message}`.slice(0, 1900);
 
     if (interaction.deferred || interaction.replied) {
-      await interactin.editReply(mensagem)
-        .catch(console.error);
+      await interaction.editReply(msg)
+        .catch(() => {});
     } else {
       await interaction.reply({
-        content: mensagem,
+        content: msg,
         flags: MessageFlags.Ephemeral
-      }).catch(console.error);
+      }).catch(() => {});
     }
   }
 });
 
-client.on("error", erro => {
-  console.error("Erro Discord:", erro);
+client.on('error', err => {
+  console.error('[CLIENT ERROR]', err.message);
 });
 
-client.on("shardDisconnect", () => {
-  console.log("Discord desconectado");
+client.on('shardError', err => {
+  console.error('[SHARD ERROR]', err.message);
 });
 
-client.on("shardResume", () => {
-  console.log("Discord reconectado");
-});
-
-process.on("unhandledRejection", erro => {
-  console.error("Erro não tratado:", erro);
-});
-
-client.on("debug", mensagem => {
-  if (/token|authorization|authenticat/i.test(mensagem)) {
-    return;
-  }
-  console.log("[GATEWAY]", mensagem);
-});
-
-client.on("shardError", erro => {
-  console.error("[ERRO GATEWAY]", erro);
-});
-
-client.on("shardDisconnect", evento => {
+client.on('shardDisconnect', event => {
   console.error(
-    "[DISCORD DESCONECTADO]",
-    evento.code,
-    evento.reason
+    '[SHARD DISCONNECT]',
+    event.code,
+    event.reason
   );
 });
 
-setTimeout(() => {
-  if (!client.isReady()) {
+client.on('shardResume', id => {
+  console.log('[SHARD RESUME]', id);
+});
+
+client.on('debug', msg => {
+  if (/token|authorization|authenticat|session|identify|heartbeat.*payload/i.test(msg)) {
+    return;
+  }
+
+  console.log(
+    '[GATEWAY DEBUG]',
+    msg.slice(0, 400)
+  );
+});
+
+process.on('unhandledRejection', err => {
+  console.error(
+    '[UNHANDLED]',
+    err?.message || String(err)
+  );
+});
+
+async function testGateway() {
+  try {
+    const response = await fetch(
+      'https://discord.com/api/v10/gateway',
+      {
+        signal: AbortSignal.timeout(10000)
+      }
+    );
+
+    console.log(
+      '[DISCORD HTTP TEST]',
+      response.status
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      console.log(
+        '[DISCORD GATEWAY URL]',
+        new URL(data.url).hostname
+      );
+    }
+  } catch (err) {
     console.error(
-      "[FALHA] Bot não conectou ao Discord em 30 segundos"
+      '[DISCORD NETWORK ERROR]',
+      err.message,
+      err.cause?.code || ''
     );
   }
-}, 30000);
-
-if (!process.env.DISCORD_TOKEN) {
-  console.error("DISCORD_TOKEN não configurado!");
-  process.exit(1);
 }
 
-console.log("Conectando ao Discord...");
+async function start() {
+  if (!process.env.DISCORD_TOKEN?.trim()) {
+    console.error(
+      '[CONFIG] DISCORD_TOKEN ausente'
+    );
+    return;
+  }
 
-client.login(process.env.DISCORD_TOKEN)
-  .catch(erro => {
-    console.error("Falha no login:", erro);
-    process.exit(1);
-  });
-      
+  console.log(
+    '[START] Testando API e conectando ao Discord...'
+  );
+
+  void testGateway();
+
+  const timeout = setTimeout(() => {
+    if (!client.isReady()) {
+      console.error(
+        '[TIMEOUT] Discord não ficou online após 45 segundos.'
+      );
+    }
+  }, 45000);
+
+  timeout.unref();
+
+  try {
+    await client.login(
+      process.env.DISCORD_TOKEN.trim()
+    );
+
+    console.log(
+      '[LOGIN] Gateway autenticado'
+    );
+  } catch (err) {
+    console.error(
+      '[LOGIN ERROR]',
+      err.message,
+      err.code || ''
+    );
+  }
+}
+
+void start();
+                       
