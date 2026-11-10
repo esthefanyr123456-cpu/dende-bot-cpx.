@@ -645,17 +645,28 @@ process.on("unhandledRejection", erro => {
 });
 
 client.on("debug", mensagem => {
-  console.log("[DISCORD DEBUG]", mensagem);
+  if (/token|authorization|authenticat/i.test(mensagem)) {
+    return;
+  }
+  console.log("[GATEWAY]", mensagem);
 });
 
 client.on("shardError", erro => {
-  console.error("[DISCORD SHARD]", erro);
+  console.error("[ERRO GATEWAY]", erro);
+});
+
+client.on("shardDisconnect", evento => {
+  console.error(
+    "[DISCORD DESCONECTADO]",
+    evento.code,
+    evento.reason
+  );
 });
 
 setTimeout(() => {
   if (!client.isReady()) {
     console.error(
-      "[DIAGNOSTICO] Discord não ficou online após 30 segundos"
+      "[FALHA] Bot não conectou ao Discord em 30 segundos"
     );
   }
 }, 30000);
