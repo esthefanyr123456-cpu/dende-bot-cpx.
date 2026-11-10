@@ -2,9 +2,9 @@
 {
   "name": "dende-bot-cpx",
   "version": "1.0.0",
-  "description": "Bot oficial da faccao Dende - Projeto CPX",
+  "private": true,
+  "description": "Bot Discord DENDÊ | PROJETO CPX",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
     "start": "node index.js"
   },
