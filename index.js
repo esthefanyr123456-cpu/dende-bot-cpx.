@@ -644,6 +644,22 @@ process.on("unhandledRejection", erro => {
   console.error("Erro não tratado:", erro);
 });
 
+client.on("debug", mensagem => {
+  console.log("[DISCORD DEBUG]", mensagem);
+});
+
+client.on("shardError", erro => {
+  console.error("[DISCORD SHARD]", erro);
+});
+
+setTimeout(() => {
+  if (!client.isReady()) {
+    console.error(
+      "[DIAGNOSTICO] Discord não ficou online após 30 segundos"
+    );
+  }
+}, 30000);
+
 if (!process.env.DISCORD_TOKEN) {
   console.error("DISCORD_TOKEN não configurado!");
   process.exit(1);
