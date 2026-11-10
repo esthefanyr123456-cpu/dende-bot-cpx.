@@ -61,6 +61,7 @@ const cargos = [
   "🔥 Líder",
   "💎 Sub-Líder",
   "🛡️ Gerente",
+  "💎 Elite Dendê",
   "📋 Recrutador",
   "🌿 Membro",
   "🟢 Recruta"
